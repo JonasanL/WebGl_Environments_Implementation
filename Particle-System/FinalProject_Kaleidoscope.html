@@ -1,0 +1,143 @@
+
+<html>
+    <head>
+        <title>FinalProject_Colorful</title>
+        <style>
+            body {margin:0}
+            canvas{width:100%; height: 100%;}
+            </style>
+    </head>
+    
+    
+    <body>
+        <script src = "js/three.js"></script>
+        
+        <script>
+            var camera, scene, renderer, cube, time = 0;
+            var currentx = 0, currenty = 0, lastx =-0.1, lasty = -0.1;
+            var xMode = 0, yMode = 0;
+            var array = []
+            var randomNum = [1,2,3];
+            var color_waterfountain = [0xffffff,0xffffff];
+            
+            function getRandomInt(max) {
+                return Math.floor(Math.random() * Math.floor(max));
+            }
+        
+
+        
+        
+        function Particle(x,y,life,angle,speed){
+            this.direction = 0;
+            this.position = {
+                x:x,
+                y:y,
+            };
+            var angleInRadians = angle * Math.PI / 180;
+            this.life = life;
+            this.Rlife = life;
+            
+            this.velocity = {
+                x_speed: speed * Math.cos(angleInRadians),
+                y_speed: -speed * Math.sin(angleInRadians)
+            };
+            this.Convelocity = {
+                x_speed: speed * Math.cos(angleInRadians),
+                y_speed: -speed * Math.sin(angleInRadians)
+            };
+            //this.geometry = new THREE.CircleGeometry(0.5,100);
+            this.geometry = new THREE.CircleGeometry(Math.random() * (60 - 25) + 25,32);
+            this.material = new THREE.MeshBasicMaterial( {color: Math.random() * 0xffffff,transparent: true, opacity: 0.5});
+            this.Rmesh = new THREE.Mesh(this.geometry,this.material);
+            
+        }
+        
+
+        function add_Particle(max){
+            var i = 0;
+            
+            for (i = 0; i < max; i++){
+                var maxx = window.innerWidth/2 * 0.95;
+                var minx = window.innerWidth/-2 * 0.95;
+                var px = Math.random() * (maxx - minx) + minx;
+                maxy = window.innerHeight/2 * 0.95;
+                miny = window.innerHeight/-2*0.95;
+                var py = Math.random() * (maxy - miny) + miny;
+                var particle = new Particle(px,py,Math.random() * (50 - 10) + 10,0,0);
+
+                var position = array.push(particle);
+                scene.add(array[position-1].Rmesh);
+                particle.Rmesh.position.set(particle.position.x,particle.position.y,-1);
+            }
+            
+        }
+        function move_Particle(){
+            for (i = 0; i < array.length; i++){
+                var particle = array[i];
+                //console.log(particle.life);
+                if (particle.life <= 0){
+                    particle.direction = 1;
+                    
+                }
+                if (particle.life == particle.Rlife){
+                    particle.direction = 0;
+                }
+                
+                
+                if (particle.direction == 0){
+                    var s = particle.life/particle.Rlife;
+                    particle.Rmesh.scale.set(s,s,s);
+                    particle.life-=0.1;
+                }
+                else{
+                    var s = particle.life/particle.Rlife;
+                    particle.Rmesh.scale.set(s,s,s);
+                    particle.life+=0.1;
+                    //console.log("I am here");
+                }
+                
+                
+                
+                
+                //particle.Rmesh.scale.set(s,s,s);
+
+                
+            }
+        }
+
+
+        
+        
+        
+        function init(){
+            camera = new THREE.OrthographicCamera(window.innerWidth/-2,window.innerWidth/2,window.innerHeight/2,window.innerHeight/-2, 1, 1000 );
+            scene = new THREE.Scene();
+            renderer = new THREE.WebGLRenderer();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            //renderer.setSize( 1, 1 );
+            document.body.appendChild( renderer.domElement );
+        }
+        
+
+        
+        var render = function()
+        {
+            requestAnimationFrame(render);
+            renderer.setSize(window.innerWidth,window.innerHeight)
+            move_Particle();
+            renderer.render(scene, camera)
+            scene.remove(cube);
+            
+
+        };
+        
+        init();
+        add_Particle(1000);
+
+        //add_Particle(1);
+        render();
+        
+        
+            </script>
+    </body>
+</html>

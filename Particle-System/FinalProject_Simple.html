@@ -1,0 +1,194 @@
+<html>
+    <head>
+        <title>FinalProject</title>
+        <style>
+            body {margin:0}
+            canvas{width:100%; height: 100%;}
+        </style>
+    </head>
+    
+    
+    <body>
+        <script src = "js/three.js"></script>
+        
+        <script>
+            var camera, scene, renderer, cube;
+
+
+            var a = [];
+            var w = []
+            var color_firework = [0xce2029,0xfffcaf,0xffe17c,0xff664b,0x903843];
+            var color_waterfountain = [0x73b6fe,0x2a90fd,0x8ab9f1,0x74bbfb];
+            
+            function getRandomInt(max) {
+                return Math.floor(Math.random() * Math.floor(max));
+            }
+        
+        
+        
+        
+            function WaterFountain(x,y,life,angle,speed){
+                this.direction = 0;
+                this.position = {
+                    x:x,
+                    y:y,
+                };
+                var angleInRadians = angle * Math.PI / 180;
+                this.life = life;
+                
+                this.velocity = {
+                    x_speed: speed * Math.cos(angleInRadians),
+                    y_speed: -speed * Math.sin(angleInRadians)
+                };
+                this.geometry = new THREE.CircleGeometry(Math.random()*2,100);
+                this.material = new THREE.MeshBasicMaterial( {color: color_waterfountain[getRandomInt(3)], wireframe:false});
+                this.Rmesh = new THREE.Mesh(this.geometry,this.material);
+                
+            }
+        
+            function add_WaterFountain(){
+                //var i = 0;
+                
+                for (i = 0; i < 5; i++){
+                    var Rangle = -Math.random() * (115-75) - 75;
+                    var particle = new WaterFountain(20,0,100,Rangle,Math.random()*1.3);
+                    var position = w.push(particle);
+                    scene.add(w[position-1].Rmesh);
+                }
+
+            }
+            function move_WaterFountain(){
+                for (i = 0; i < w.length; i++){
+                    var particle = w[i];
+                    if (particle.life > 0){
+                        var s = particle.life/100;
+                        particle.Rmesh.scale.set(s,s,s);
+                        if (particle.position.y >10){
+                            particle.velocity.y_speed -= 0.015;
+                        }
+                        //var s = particle.life/100;
+                        //particle.Rmesh.scale.set(s,s,s);
+                        
+                        particle.position.x += particle.velocity.x_speed;
+                        particle.position.y += particle.velocity.y_speed;
+                        particle.Rmesh.position.set(particle.position.x,particle.position.y,0);
+                        //particle.Rmesh.scale.set(0.1,0.1,0.1);
+                        particle.life--;
+                    }
+                    else{
+                        scene.remove(particle.Rmesh);
+                        particle.geometry.dispose();
+                        particle.material.dispose();
+                        w.splice(i,1);
+                    }
+                    
+                }
+            }
+        
+        
+        
+            
+            function Firework(x,y,life,angle,speed){
+                this.direction = 0;
+                this.position = {
+                    x:x,
+                    y:y,
+                };
+                var angleInRadians = angle * Math.PI / 180;
+                this.life = life;
+                
+                this.velocity = {
+                    x_speed: speed * Math.cos(angleInRadians),
+                    y_speed: -speed * Math.sin(angleInRadians)
+                };
+                this.geometry = new THREE.CircleGeometry(Math.random()*2,100);
+                this.material = new THREE.MeshBasicMaterial( {color: color_firework[getRandomInt(4)], wireframe:false});
+                this.Rmesh = new THREE.Mesh(this.geometry,this.material);
+                
+            }
+        
+            function add_Firework(){
+                //var i = 0;
+                
+ 
+                for (i = 0; i < 5; i++){
+                    var Rangle = -Math.random() * (110-80) - 80;
+                    var particle = new Firework(-80,0,30,Rangle,Math.random()*5);
+                    var position = a.push(particle);
+                    scene.add(a[position-1].Rmesh);
+                }
+                
+                
+
+            }
+            function move_Firework(){
+                for (i = 0; i < a.length; i++){
+                    var particle = a[i];
+                    if (particle.life > 0){
+                        particle.position.x += particle.velocity.x_speed;
+                        particle.position.y += particle.velocity.y_speed;
+                        particle.Rmesh.position.set(particle.position.x,particle.position.y,0);
+                        //particle.Rmesh.scale.set(0.1,0.1,0.1);
+                        particle.life--;
+                    }
+                    else{
+                        scene.remove(particle.Rmesh);
+                        particle.geometry.dispose();
+                        particle.material.dispose();
+                        a.splice(i,1);
+                    }
+                }
+            }
+            
+            
+            
+            function init(){
+                camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+                scene = new THREE.Scene();
+                //renderer
+                renderer = new THREE.WebGLRenderer();
+                //set the size of the renderer
+                renderer.setSize( window.innerWidth, window.innerHeight );
+                camera.position.z = 100;
+                //add the renderer to the html document body
+                document.body.appendChild( renderer.domElement );
+            }
+
+        
+            function addCube(x,y,z,color){
+
+                var geometry = new THREE.PlaneBufferGeometry(5,5,0);
+            
+                var material = new THREE.MeshBasicMaterial( {color: color, wireframe:false});
+                cube = new THREE.Mesh(geometry, material);
+                scene.add(cube);
+                cube.position.set(x,y,z);
+            }
+        
+            var render = function()
+            {
+                requestAnimationFrame(render);
+                //cube.rotation.y += 0.001;
+                //cube.rotation.x += 0.001;
+         
+                //addCube()
+                if (a.length < 1000){
+                    add_Firework();
+                }
+                move_Firework();
+                if (w.length < 1000){
+                    add_WaterFountain();
+                }
+                move_WaterFountain();
+                renderer.render(scene, camera)
+            };
+        
+            init();
+            addCube(-80,-3,0,0xc99014);
+            addCube(20,-3,0,0x004953);
+            render();
+        
+
+        </script>
+    </body>
+</html>
